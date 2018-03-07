@@ -58,6 +58,33 @@ impl Account {
         }
     }
 
+    // Current open orders
+    pub fn get_closed_orders<S>(&self, symbol: S) -> Result<(Vec<Order>)>
+        where S: Into<String>
+    {
+        let mut parameters: BTreeMap<String, String> = BTreeMap::new();
+        parameters.insert("symbol".into(), symbol.into());
+
+        let request = build_signed_request(parameters, self.recv_window);
+        let data = self.client.get_signed("/api/v3/order", &request)?;
+        let order: Vec<Order> = from_str(data.as_str()).unwrap();
+
+        Ok(order)
+    }
+
+    // Current open orders
+    pub fn get_open_orders_all(&self) -> Result<(Vec<Order>)>
+    {
+        let parameters: BTreeMap<String, String> = BTreeMap::new();
+        // parameters.insert("symbol".into(), symbol.into());
+
+        let request = build_signed_request(parameters, self.recv_window);
+        let data = self.client.get_signed("/api/v3/openOrders", &request)?;
+        let order: Vec<Order> = from_str(data.as_str()).unwrap();
+
+        Ok(order)
+    }
+
     // Current open orders for ONE symbol
     pub fn get_open_orders<S>(&self, symbol: S) -> Result<(Vec<Order>)>
         where S: Into<String>
