@@ -142,6 +142,19 @@ pub struct TradeHistory {
     pub is_best_match: bool,
 }
 
+pub struct CandleStick {
+    pub open_time: u64,
+    pub open_price: f64,
+    pub high_price: f64,
+    pub low_price: f64,
+    pub close_price: f64,
+    pub volume: f64,
+    pub quote_asset_volume: f64,
+    pub trades: u64,
+    pub taker_buy_base_asset_volume: f64,
+    pub taker_buy_quote_asset_volume: f64,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PriceStats {

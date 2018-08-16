@@ -13,17 +13,41 @@ pub struct Market {
 
 // Market Data endpoints
 impl Market {
+
+    pub fn get_klines<S>(&self, symbol: S, inverval: S) -> Result<(Vec<CandleStick>)> where S: Into<String> {
+        let mut parameters: BTreeMap<String, String> = BTreeMap::new();
+        parameters.insert("symbol".into(), symbol.into());
+        parameters.insert("interval".into(), inverval.into());
+
+        let request = build_request(&parameters);
+        let data = self.client.get("/api/v1/klines", &request)?;
+        let order_book_result: Vec<(u64, String, String, String, String, String, u64, String, u64, String, String, String)> = from_str(data.as_str()).unwrap();
+
+        Ok(order_book_result.iter().map(|r|
+            CandleStick {
+                open_time:                      r.0,
+                open_price:                     r.1.parse::<f64>().unwrap(),
+                high_price:                     r.2.parse::<f64>().unwrap(),
+                low_price:                      r.3.parse::<f64>().unwrap(),
+                close_price:                    r.4.parse::<f64>().unwrap(),
+                volume:                         r.5.parse::<f64>().unwrap(),
+                quote_asset_volume:             r.7.parse::<f64>().unwrap(),
+                trades:                         r.8,
+                taker_buy_base_asset_volume:    r.9.parse::<f64>().unwrap(),
+                taker_buy_quote_asset_volume:   r.10.parse::<f64>().unwrap(),
+            }
+        ).collect())
+    }
+
     // Order book (Default 100; max 100)
     pub fn get_depth<S>(&self, symbol: S) -> Result<(OrderBook)>
         where S: Into<String>
     {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
-
         parameters.insert("symbol".into(), symbol.into());
+
         let request = build_request(&parameters);
-
         let data = self.client.get("/api/v1/depth", &request)?;
-
         let order_book: OrderBook = from_str(data.as_str()).unwrap();
 
         Ok(order_book)
